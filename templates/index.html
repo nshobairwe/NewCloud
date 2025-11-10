@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ping Monitor</title>
+  <meta http-equiv="refresh" content="{{ interval + 2 }}">
+  <style>
+    body {font-family: Arial, sans-serif; margin: 2rem; background:#f9f9f9;}
+    table {border-collapse: collapse; width:100%; margin-bottom:2rem;}
+    th, td {border:1px solid #ddd; padding:.6rem; text-align:left;}
+    th {background:#eee;}
+    .active {color:green; font-weight:bold;}
+    .inactive {color:red; font-weight:bold;}
+    h1 {color:#333;}
+    .footer {margin-top:3rem; font-size:0.9rem; color:#666;}
+  </style>
+</head>
+<body>
+  <h1>Network Ping Status</h1>
+  <p><em>Refreshes every {{ interval }} seconds</em></p>
+
+  {% for region, items in results.items() %}
+    <h2>{{ region }}</h2>
+    <table>
+      <tr><th>Type</th><th>IP</th><th>Status</th></tr>
+      {% for it in items %}
+        <tr>
+          <td>{{ it.label }}</td>
+          <td>{{ it.ip }}</td>
+          <td class="{{ 'active' if it.status == 'ACTIVE' else 'inactive' }}">
+            {{ it.status }}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endfor %}
+
+  <div class="footer">
+    Last scan: {{ current_time }}
+  </div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ping-monitor
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+    envVars:
+      PING_INTERVAL: "5"      # seconds between full scans
+      PING_TIMEOUT:  "1"      # seconds per ping
