@@ -13,26 +13,45 @@
     .inactive {color:red; font-weight:bold;}
     h1 {color:#333;}
     .footer {margin-top:3rem; font-size:0.9rem; color:#666;}
+    /* NEW: Search Styles */
+    .search-container {margin-bottom: 2rem; text-align: center;}
+    select {padding: 0.5rem; font-size: 1rem; border: 1px solid #ddd; border-radius: 4px; width: 200px;}
+    .region-section {display: block;} /* Default: show all */
+    .region-section.hidden {display: none;}
   </style>
 </head>
 <body>
   <h1>Network Ping Status</h1>
   <p><em>Live from local network</em></p>
 
-  {% for region, items in results.items() %}
-    <h2>{{ region }}</h2>
-    <table>
-      <tr><th>Type</th><th>IP</th><th>Status</th></tr>
-      {% for it in items %}
-        <tr>
-          <td>{{ it.label }}</td>
-          <td>{{ it.ip }}</td>
-          <td class="{{ 'active' if it.status == 'ACTIVE' else 'inactive' }}">
-            {{ it.status }}
-          </td>
-        </tr>
+  <!-- NEW: Region Search Dropdown -->
+  <div class="search-container">
+    <label for="regionFilter">Filter by Region: </label>
+    <select id="regionFilter" onchange="filterRegions()">
+      <option value="all">All Regions</option>
+      {% for region in results.keys() %}
+        <option value="{{ region.lower().replace(' ', '-') }}">{{ region }}</option>
       {% endfor %}
-    </table>
+    </select>
+  </div>
+
+  <!-- Regions Tables -->
+  {% for region, items in results.items() %}
+    <div class="region-section" id="region-{{ region.lower().replace(' ', '-') }}">
+      <h2>{{ region }}</h2>
+      <table>
+        <tr><th>Type</th><th>IP</th><th>Status</th></tr>
+        {% for it in items %}
+          <tr>
+            <td>{{ it.label }}</td>
+            <td>{{ it.ip }}</td>
+            <td class="{{ 'active' if it.status == 'ACTIVE' else 'inactive' }}">
+              {{ it.status }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
   {% endfor %}
 
   <div class="footer">
@@ -44,5 +63,26 @@
       <em>Waiting for data...</em>
     {% endif %}
   </div>
+
+  <!-- NEW: JavaScript for Filtering -->
+  <script>
+    function filterRegions() {
+      const filter = document.getElementById('regionFilter').value;
+      const sections = document.querySelectorAll('.region-section');
+      
+      sections.forEach(section => {
+        if (filter === 'all') {
+          section.classList.remove('hidden');
+        } else {
+          const regionId = section.id;
+          if (regionId === `region-${filter}`) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
