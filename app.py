@@ -7,6 +7,7 @@ import threading
 import time
 from flask import Flask, render_template
 from datetime import datetime
+import socket
 
 app = Flask(__name__)
 
@@ -24,20 +25,21 @@ regions = {
     # ... add all your regions ...
 }
 
-# --- Ping function ---
-def ping_ip(ip: str) -> dict:
-    param = "-n" if os.name == "nt" else "-c"
-    timeout_flag = "-w" if os.name == "nt" else "-W"
-    timeout_val = str(PING_TIMEOUT * 1000) if os.name == "nt" else str(PING_TIMEOUT)
-    cmd = ["ping", param, "1", timeout_flag, timeout_val, ip]
 
-    try:
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                timeout=PING_TIMEOUT + 3, text=True)
-        alive = "TTL=" in result.stdout
-        return {"ip": ip, "status": "ACTIVE" if alive else "INACTIVE"}
-    except Exception:
-        return {"ip": ip, "status": "INACTIVE"}
+# --- TCP PING (WORKS ON RENDER) ---
+def ping_ip(ip: str) -> dict:
+    ports_to_try = [80, 443, 22, 21]  # Try common ports
+    for port in ports_to_try:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(PING_TIMEOUT)
+            result = sock.connect_ex((ip, port))
+            sock.close()
+            if result == 0:
+                return {"ip": ip, "status": "ACTIVE"}
+        except:
+            pass
+    return {"ip": ip, "status": "INACTIVE"}
 
 # --- Background job (MUST be at top level for import) ---
 def background_ping_job():
