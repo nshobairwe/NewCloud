@@ -3,6 +3,6 @@ services:
     name: newcloud
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app -b 0.0.0.0:$PORT
     envVars:
       PORT: "10000"
