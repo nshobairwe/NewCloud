@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Ping Monitor</title>
-  <meta http-equiv="refresh" content="{{ interval + 2 }}">
+  <meta http-equiv="refresh" content="15">
   <style>
     body {font-family: Arial, sans-serif; margin: 2rem; background:#f9f9f9;}
     table {border-collapse: collapse; width:100%; margin-bottom:2rem;}
@@ -17,7 +17,7 @@
 </head>
 <body>
   <h1>Network Ping Status</h1>
-  <p><em>Refreshes every {{ interval }} seconds</em></p>
+  <p><em>Live data from your local network</em></p>
 
   {% for region, items in results.items() %}
     <h2>{{ region }}</h2>
@@ -35,8 +35,15 @@
     </table>
   {% endfor %}
 
+  <!-- THIS IS THE UPDATED FOOTER -->
   <div class="footer">
-    Last scan: {{ current_time }}
+    Last update: 
+    {% if last_update %}
+      <strong>{{ last_update }}</strong> 
+      <span style="color: #2e8b57;">(from local network)</span>
+    {% else %}
+      <em>Waiting for data from local pinger...</em>
+    {% endif %}
   </div>
 </body>
 </html>
