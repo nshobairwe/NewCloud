@@ -10,7 +10,35 @@ import time
 from flask import Flask, render_template
 from datetime import datetime
 
+
 app = Flask(__name__)
+
+# ------------------------------------------------------------------
+# 4. Background job
+# ------------------------------------------------------------------
+def background_ping_job():
+    global ping_results
+    while True:
+        new_results = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as exe:
+            future_to_key = {}
+            for region, info in regions.items():
+                f = exe.submit(ping_ip, info["wan"])
+                future_to_key[f] = (region, "WAN")
+                f = exe.submit(ping_ip, info["gateway"])
+                future_to_key[f] = (region, "Gateway")
+                for ip in info["lan"]:
+                    f = exe.submit(ping_ip, ip)
+                    future_to_key[f] = (region, "LAN")
+
+            for fut in concurrent.futures.as_completed(future_to_key):
+                region, label = future_to_key[fut]
+                res = fut.result()
+                res["label"] = label
+                new_results.setdefault(region, []).append(res)
+
+        ping_results = new_results
+        time.sleep(PING_INTERVAL)
 
 # ------------------------------------------------------------------
 # 1. Regions
@@ -52,33 +80,6 @@ def ping_ip(ip: str) -> dict:
         return {"ip": ip, "status": "ACTIVE" if alive else "INACTIVE"}
     except Exception as e:
         return {"ip": ip, "status": "INACTIVE"}
-
-# ------------------------------------------------------------------
-# 4. Background job
-# ------------------------------------------------------------------
-def background_ping_job():
-    global ping_results
-    while True:
-        new_results = {}
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as exe:
-            future_to_key = {}
-            for region, info in regions.items():
-                f = exe.submit(ping_ip, info["wan"])
-                future_to_key[f] = (region, "WAN")
-                f = exe.submit(ping_ip, info["gateway"])
-                future_to_key[f] = (region, "Gateway")
-                for ip in info["lan"]:
-                    f = exe.submit(ping_ip, ip)
-                    future_to_key[f] = (region, "LAN")
-
-            for fut in concurrent.futures.as_completed(future_to_key):
-                region, label = future_to_key[fut]
-                res = fut.result()
-                res["label"] = label
-                new_results.setdefault(region, []).append(res)
-
-        ping_results = new_results
-        time.sleep(PING_INTERVAL)
 
 # ------------------------------------------------------------------
 # 5. Flask route
