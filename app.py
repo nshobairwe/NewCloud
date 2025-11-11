@@ -1,6 +1,7 @@
 # app.py – Render receives data from local pinger
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -26,7 +27,7 @@ def update():
     data = request.get_json()
     if data and "results" in data:
         ping_results = data["results"]
-        last_update = datetime.now().strftime("%Y-%m-%d %H:%M:%S EAT")
+        last_update = (datetime.now() + timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S EAT")
         print(f"[CLOUD] Received {len(ping_results)} regions from local")
         return jsonify({"status": "success"}), 200
     return jsonify({"status": "error", "message": "Invalid data"}), 400
