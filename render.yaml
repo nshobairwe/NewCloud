@@ -1,9 +1,8 @@
 services:
   - type: web
-    name: ping-monitor
+    name: newcloud
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -c gunicorn.conf.py app:app
+    startCommand: python app.py
     envVars:
-      PING_INTERVAL: "10"
-      PING_TIMEOUT: "3"
+      PORT: "10000"

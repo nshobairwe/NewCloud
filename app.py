@@ -1,5 +1,4 @@
-# app.py (on Render – receives data)
-import os
+# app.py – Render receives data from local pinger
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 
@@ -11,7 +10,6 @@ last_update = None
 
 @app.route("/")
 def index():
-    global last_update
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S EAT")
     return render_template(
         "index.html",
@@ -21,7 +19,7 @@ def index():
         last_update=last_update
     )
 
-# API endpoint to receive ping results
+# THIS IS THE MISSING ENDPOINT
 @app.route("/update", methods=["POST"])
 def update():
     global ping_results, last_update
@@ -29,9 +27,9 @@ def update():
     if data and "results" in data:
         ping_results = data["results"]
         last_update = datetime.now().strftime("%Y-%m-%d %H:%M:%S EAT")
-        print(f"[CLOUD] Received update from local: {len(ping_results)} regions")
+        print(f"[CLOUD] Received {len(ping_results)} regions from local")
         return jsonify({"status": "success"}), 200
-    return jsonify({"status": "error"}), 400
+    return jsonify({"status": "error", "message": "Invalid data"}), 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
