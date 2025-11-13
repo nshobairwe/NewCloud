@@ -2,29 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NHC Ping Monitor</title>
   <meta http-equiv="refresh" content="15">
+
   <style>
-    body {font-family: Arial, sans-serif; margin: 2rem; background:#f9f9f9;}
-    table {border-collapse: collapse; width:100%; margin-bottom:2rem;}
-    th, td {border:1px solid #ddd; padding:.6rem; text-align:left;}
-    th {background:#eee;}
-    .active {color:green; font-weight:bold;}
-    .inactive {color:red; font-weight:bold;}
-    h1 {color:#333;}
-    .footer {margin-top:3rem; font-size:0.9rem; color:#666;}
-    /* NEW: Search Styles */
-    .search-container {margin-bottom: 2rem; text-align: center;}
-    select {padding: 0.5rem; font-size: 1rem; border: 1px solid #ddd; border-radius: 4px; width: 200px;}
-    .region-section {display: block;} /* Default: show all */
-    .region-section.hidden {display: none;}
+    /* ---------- Base ---------- */
+    body {font-family: Arial, Helvetica, sans-serif; margin: 1rem; background:#f9f9f9;}
+    h1 {font-size: 1.5rem; margin-bottom: .5rem; color:#333;}
+    p {margin: .5rem 0 1rem; font-size: .9rem;}
+    .footer {margin-top:2rem; font-size:.85rem; color:#666; text-align:center;}
+
+    /* ---------- Search ---------- */
+    .search-container {margin-bottom:1.5rem; text-align:center;}
+    #regionFilter {padding:.5rem; font-size:1rem; border:1px solid #ddd;
+                   border-radius:4px; width:100%; max-width:300px;}
+
+    /* ---------- Tables ---------- */
+    .table-wrapper {overflow-x:auto; margin-bottom:1.5rem; -webkit-overflow-scrolling:touch;}
+    table {border-collapse:collapse; width:100%; min-width:320px;}
+    th, td {border:1px solid #ddd; padding:.5rem .4rem; text-align:left; font-size:.9rem;}
+    th {background:#eee; font-weight:600;}
+    .active   {color:#0a0; font-weight:bold;}
+    .inactive {color:#c00; font-weight:bold;}
+
+    /* ---------- Region sections ---------- */
+    .region-section {display:block;}
+    .region-section.hidden {display:none;}
+
+    /* ---------- Mobile tweaks ---------- */
+    @media (max-width: 600px) {
+      body {margin:.5rem;}
+      h1 {font-size:1.3rem;}
+      .search-container {margin-bottom:1rem;}
+      #regionFilter {font-size:1rem; max-width:none;}
+      th, td {padding:.4rem .3rem; font-size:.85rem;}
+      .footer {font-size:.8rem;}
+    }
   </style>
 </head>
 <body>
+
   <h1>Network Ping Status</h1>
   <p><em>Live from local network</em></p>
 
-  <!-- NEW: Region Search Dropdown -->
+  <!-- Region filter -->
   <div class="search-container">
     <label for="regionFilter">Filter by Region: </label>
     <select id="regionFilter" onchange="filterRegions()">
@@ -35,51 +57,50 @@
     </select>
   </div>
 
-  <!-- Regions Tables -->
+  <!-- Tables -->
   {% for region, items in results.items() %}
     <div class="region-section" id="region-{{ region.lower().replace(' ', '-') }}">
       <h2>{{ region }}</h2>
-      <table>
-        <tr><th>Type</th><th>IP</th><th>Status</th></tr>
-        {% for it in items %}
-          <tr>
-            <td>{{ it.label }}</td>
-            <td>{{ it.ip }}</td>
-            <td class="{{ 'active' if it.status == 'ACTIVE' else 'inactive' }}">
-              {{ it.status }}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
+      <div class="table-wrapper">
+        <table>
+          <tr><th>Type</th><th>IP</th><th>Status</th></tr>
+          {% for it in items %}
+            <tr>
+              <td>{{ it.label }}</td>
+              <td>{{ it.ip }}</td>
+              <td class="{{ 'active' if it.status == 'ACTIVE' else 'inactive' }}">
+                {{ it.status }}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
     </div>
   {% endfor %}
 
+  <!-- Footer -->
   <div class="footer">
-    Last update: 
+    Last update:
     {% if last_update %}
-      <strong>{{ last_update }}</strong> 
-      <span style="color: #2e8b57;">(from local network)</span>
+      <strong>{{ last_update }}</strong>
+      <span style="color:#2e8b57;"> (from local network)</span>
     {% else %}
-      <em>Waiting for data...</em>
+      <em>Waiting for data…</em>
     {% endif %}
   </div>
 
-  <!-- NEW: JavaScript for Filtering -->
+  <!-- Filter script (unchanged) -->
   <script>
     function filterRegions() {
       const filter = document.getElementById('regionFilter').value;
       const sections = document.querySelectorAll('.region-section');
-      
-      sections.forEach(section => {
+
+      sections.forEach(sec => {
         if (filter === 'all') {
-          section.classList.remove('hidden');
+          sec.classList.remove('hidden');
         } else {
-          const regionId = section.id;
-          if (regionId === `region-${filter}`) {
-            section.classList.remove('hidden');
-          } else {
-            section.classList.add('hidden');
-          }
+          sec.id === `region-${filter}` ? sec.classList.remove('hidden')
+                                        : sec.classList.add('hidden');
         }
       });
     }
