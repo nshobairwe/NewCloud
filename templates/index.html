@@ -205,14 +205,15 @@
 
     <!-- Status Bar -->
     <div class="status-bar">
-      <div class="status-item">
-        <span class="dot active"></span>
-        <span id="active-count">0</span> Active
-      </div>
-      <div class="status-item">
-        <span class="dot inactive"></span>
-        <span id="inactive-count">0</span> Down
-      </div>
+      <div class="status-item" onclick="showOnly('active')" style="cursor:pointer;">
+      <span class="dot active"></span>
+      <span id="active-count">0</span> Active
+    </div>
+
+    <div class="status-item" onclick="showOnly('inactive')" style="cursor:pointer;">
+      <span class="dot inactive"></span>
+      <span id="inactive-count">0</span> Down
+    </div>
       <div class="status-item">
         <strong>Last update:</strong>
         <span id="last-update"><em>Waiting for data…</em></span>
@@ -266,6 +267,27 @@
   </div>
 
   <script>
+    function showOnly(type) {
+  const cards = document.querySelectorAll('.region-card');
+
+  cards.forEach(card => {
+    let hasMatch = false;
+
+    card.querySelectorAll('table tr').forEach((row, i) => {
+      if (i === 0) return; // skip header
+      const status = row.querySelector('.status');
+
+      if (status && status.classList.contains(type)) {
+        hasMatch = true;
+      }
+    });
+
+    card.classList.toggle('hidden', !hasMatch);
+  });
+
+  // Update counts after filtering
+  filterRegions();
+}
     // Filter + update counts
     function filterRegions() {
       const query = document.getElementById('regionSearch').value.trim().toLowerCase();
