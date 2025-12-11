@@ -79,16 +79,25 @@
       .region-card h2 { font-size: 1.1rem; }
       #regionSearch { max-width: none; }
     }
+    @keyframes dance {
+  0%   { transform: translateY(0) rotate(0deg); }
+  25%  { transform: translateY(-5px) rotate(-10deg); }
+  50%  { transform: translateY(0) rotate(10deg); }
+  75%  { transform: translateY(-5px) rotate(-10deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
   </style>
 </head>
 <body>
   <div class="container">
-
-    <!-- Header -->
-    <div class="header">
-      <h1>NHC Ping Monitor</h1>
-      <p><em>Real-time network status from local infrastructures</em></p>
-    </div>
+<!-- Header -->
+<div class="header" style="text-align:center;">
+  <img src="https://tse4.mm.bing.net/th/id/OIP.Bgy4r3DVHEr1Za43u_nR1QAAAA?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3"
+       alt="NHC Logo"
+       style="height:60px; width:60px; animation: dance 1s infinite alternate;">
+  <h1>NHC Ping Monitor</h1>
+  <p><em>Real-time network status from local infrastructures</em></p>
+</div>
 
     <!-- Status Bar -->
     <div class="status-bar">
